@@ -1,0 +1,204 @@
+/* dnx_3dtool — 3D waterfall overlay for OpenWebRX+ */
+
+#webrx-canvas-background {
+    position: relative;
+}
+
+#dnx3d-wrap {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    /* no z-index on purpose: paints above the 2D canvases (later in DOM order)
+       but stays below the OpenWebRX panels, which have no z-index either */
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+#dnx3d-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    cursor: grab;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+/* 2D-only / 3D-only / split layout. OpenWebRX's canvas background is a
+   flex column, so both views can share it without changing core files. */
+#webrx-canvas-background.dnx3d-split #webrx-canvas-container,
+#webrx-canvas-background.dnx3d-split #dnx3d-wrap {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    min-height: 0;
+    height: auto;
+    flex: 1 1 50%;
+    overflow: hidden;
+}
+
+#webrx-canvas-background.dnx3d-split #webrx-canvas-container {
+    order: 1;
+}
+
+#webrx-canvas-background.dnx3d-split #dnx3d-wrap {
+    order: 2;
+}
+
+#webrx-canvas-background.dnx3d-split-flip #webrx-canvas-container {
+    order: 2;
+}
+
+#webrx-canvas-background.dnx3d-split-flip #dnx3d-wrap {
+    order: 1;
+}
+
+#dnx3d-modebar {
+    position: absolute;
+    z-index: 20;
+    left: 8px;
+    bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 5px;
+    background: rgba(0, 0, 0, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 5px;
+    color: #eee;
+    font: 9pt 'DejaVu Sans', Verdana, sans-serif;
+    user-select: none;
+}
+
+#dnx3d-modebar button {
+    background: #333;
+    color: #eee;
+    border: 1px solid #666;
+    border-radius: 3px;
+    height: 20px;
+    padding: 0 5px;
+    cursor: pointer;
+}
+
+#dnx3d-modebar button.active {
+    background: #b68b19;
+    color: #fff;
+    border-color: #ffcf40;
+}
+
+#dnx3d-toolbar {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    max-width: calc(100% - 16px);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 6px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 6px;
+    font-family: 'DejaVu Sans', Verdana, Geneva, sans-serif;
+    font-size: 10pt;
+    color: #eee;
+    opacity: 0.35;
+    transition: opacity 0.25s;
+    cursor: default;
+}
+
+#dnx3d-toolbar:hover {
+    opacity: 1;
+}
+
+#dnx3d-toolbar .dnx3d-title {
+    font-weight: bold;
+    color: #ffcf40;
+    margin-right: 2px;
+}
+
+#dnx3d-toolbar .dnx3d-sep {
+    display: inline-block;
+    width: 1px;
+    height: 16px;
+    margin: 0 2px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#dnx3d-toolbar select,
+#dnx3d-toolbar button {
+    background: #333;
+    color: #eee;
+    border: 1px solid #666;
+    border-radius: 3px;
+    font-size: 9pt;
+    height: 20px;
+    padding: 0 3px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+#dnx3d-toolbar select {
+    max-width: 96px;
+}
+
+#dnx3d-toolbar button.active {
+    background: #b68b19;
+    color: #fff;
+    border-color: #ffcf40;
+}
+
+#dnx3d-toolbar button:hover,
+#dnx3d-toolbar select:hover {
+    border-color: #ffcf40;
+}
+
+#dnx3d-toolbar input[type=range] {
+    width: 60px;
+    height: 20px;
+    margin: 0;
+    cursor: pointer;
+}
+
+#dnx3d-labels span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: 'DejaVu Sans', Verdana, Geneva, sans-serif;
+    font-size: 8.5pt;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 0 3px #000, 0 0 3px #000;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+#dnx3d-msg {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    padding: 8px 14px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 6px;
+    color: #ffcf40;
+    font-family: 'DejaVu Sans', Verdana, Geneva, sans-serif;
+    font-size: 10pt;
+    pointer-events: none;
+    display: none;
+}
+
+/* highlighted state of the 3D toggle button (plugin stack or zoom bar) */
+#plugin-button-dnx_3dtool.highlighted,
+#dnx3d-button.highlighted {
+    background: #b68b19 !important;
+    color: #fff;
+}
