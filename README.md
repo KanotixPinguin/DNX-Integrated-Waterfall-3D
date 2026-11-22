@@ -66,3 +66,26 @@ sudo ./install.sh update
 sudo ./install.sh uninstall
 ```
 
+---
+
+## 3D-Hintergrund, Styler-Integration & Verbindungen (`v3.10`)
+
+![Styler & 3D-Hintergrund im BEIDE-Modus](docs/styler-3d-hintergrund-beide.png)
+
+### Alle Steuerelemente der `#dnx3d-toolbar` (`20` Kontrollen)
+
+| Gruppe | Elemente | Beschreibung |
+|---|---|---|
+| **Ansicht (`#dnx3d-modebar`)** | `STD`, `3D`, `BEIDE`, `⇅` | Umschalten zwischen klassischem 2D, reinem WebGL-3D, synchronem Split (`BEIDE`) und Reihenfolge-Tausch (`splitFlip`). |
+| **Darstellung** | `Style` (`6` Modi: `Points`, `Lines`, `Traces`, `Solid`, `Outline`, `Shaded`), `Colormap` (**`100` Optionen**: `Waterfall (wie 2D)`, `28` SDRangel-Paletten, `71` DNX/MultiSDR/OWRX), **`Hintergr`** (**`80` Optionen**: `Standard`, `7` dunkle Vollfarben, `72` Rohpaletten) | Steuert Fläche und Hintergrund unabhängig voneinander (`⌂ 2D` zeigt den 2D-Farbverlauf). |
+| **Signal & Raster** | `AVG` (`No`, `Mov`, `Fix`, `Max`), `AvgN` (`1–200`), `FPS` (`5–60`), `Lin`/`Log`, `Rows` (`128–1024`), `Cols` (`64–1024`), `Smooth`, `Height`, `Bright`, `Kontr` | Volle WebGL2-Echtzeitkontrolle inkl. Frequenzskala und Klick-Abstimmung direkt in der 3D-Fläche. |
+| **Aktionen** | `⇅` (Flip), `□` (Rahmen), `❚❚` (Pause), `PNG` (Schnappschuss), `↺` (Reset), `✕` | Kamera, Rahmen, Pause und Bild-Export. |
+
+### Wie der 3D-Hintergrund technisch funktioniert & mit `DNX Styler` zusammenspielt
+
+1. **Eigenständig (`dnx_3dtool.js`):** Bei `bg === "Standard"` rendert das WebGL-Canvas seinen eigenen dunklen Hintergrund (`rgba(0,0,0,backdrop)`). Sobald eine Festfarbe oder eine `palraw:*`-Palette gewählt wird, setzt `dnx_3dtool.js` diesen Hintergrund per `!important` auf **`#dnx3d-wrap`**, schaltet `#dnx3d-canvas` **transparent (`__dnx3dFremdHg = 1`)** und feuert `CustomEvent("dnx3d:hintergrund")`. Alle Werte werden lokal in `localStorage["dnx_3dtool"]` gesichert.
+2. **Zusätzlich im `DNX Styler` (`#dnx-blk-wasserfall`):** Im Styler (`DNX-Styler`) lassen sich `3D-Farbverlauf` und `3D-Hintergrund` (`107` Optionen) zentral neben 2D-Wasserfall und Spektrum einstellen. Über `farb3dHgCss()` legt der Styler bei `palraw:*`-Verläufen einen dezenten dunklen Schleier (`0.18–0.42`) über `window.dnxPalDaten().wf` für optimalen Kontrast, synchronisiert über `Plugins.dnx_3dtool.configure()` und `window.dnx3dApi` (inkl. `300/900/2000/4000 ms`-Nachlauf) und schützt vor Canvas-Überschreibungen über `window.__dnx3dHgWache` (`700 ms`).
+3. **Serverweite Verteilung (`styler_share.py :8098`) & Rechte (`:8095/:8096`):** Über `/dnx/styler/std` werden `m3d`, `m3d_flip`, `cmap3d` und `bg3d` im Admin-Standard an alle Besucher verteilt; `DNX-Receiver-Account-Control` prüft über `waterfall3d` die Freigabe pro Rolle.
+
+![DNX Gesamtarchitektur & Verbindungen](docs/dnx-architektur-verbindungen.png)
+![Datenflüsse: Spektrum, 3D-Hintergrund & Speicherung](docs/dnx-datenfluss-speicherung.png)
